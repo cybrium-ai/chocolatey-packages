@@ -22,7 +22,17 @@ leaves the binary in `tools/` so Chocolatey shims it onto PATH.
 1. Publish the tool's GitHub release with the signed `<id>-windows-amd64.exe`.
 2. `shasum -a 256 <id>-windows-amd64.exe` and update the row in `packages.tsv`.
 3. `./build.sh`
-4. `dotnet nuget push dist/<id>.<version>.nupkg --source https://push.chocolatey.org/ --api-key "$(pbpaste)"` (Mono nuget.exe 6.12 cannot complete the TLS handshake with push.chocolatey.org; use the dotnet CLI)
+4. Push over IPv4 with curl. push.chocolatey.org sits behind Cloudflare and the IPv6 path from the Mac hangs; both Mono nuget and `dotnet nuget push` pick IPv6 and die with socket errors, while curl `-4` works:
+
+   ```bash
+   for p in dist/*.nupkg; do
+     curl -4 -sS -o /dev/null -w "$p HTTP %{http_code}\n" -X PUT \
+       -H "X-NuGet-ApiKey: $(pbpaste)" \
+       -F "package=@$p;type=application/octet-stream" \
+       https://push.chocolatey.org/api/v2/package/
+   done
+   ```
+   HTTP 201 means accepted, 403 means bad key, 409 means the version already exists.
 5. Watch the package page; respond on the review-comments box within 15 days if the verifier flags anything.
 
 ## Hard rules (learned the hard way)

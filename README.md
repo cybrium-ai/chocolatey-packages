@@ -22,7 +22,7 @@ leaves the binary in `tools/` so Chocolatey shims it onto PATH.
 1. Publish the tool's GitHub release with the signed `<id>-windows-amd64.exe`.
 2. `shasum -a 256 <id>-windows-amd64.exe` and update the row in `packages.tsv`.
 3. `./build.sh`
-4. `nuget push dist/<id>.<version>.nupkg -Source https://push.chocolatey.org/ -ApiKey "$(pbpaste)"`
+4. `dotnet nuget push dist/<id>.<version>.nupkg --source https://push.chocolatey.org/ --api-key "$(pbpaste)"` (Mono nuget.exe 6.12 cannot complete the TLS handshake with push.chocolatey.org; use the dotnet CLI)
 5. Watch the package page; respond on the review-comments box within 15 days if the verifier flags anything.
 
 ## Hard rules (learned the hard way)

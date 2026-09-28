@@ -22,17 +22,19 @@ leaves the binary in `tools/` so Chocolatey shims it onto PATH.
 1. Publish the tool's GitHub release with the signed `<id>-windows-amd64.exe`.
 2. `shasum -a 256 <id>-windows-amd64.exe` and update the row in `packages.tsv`.
 3. `./build.sh`
-4. Push over IPv4 with curl. push.chocolatey.org sits behind Cloudflare and the IPv6 path from the Mac hangs; both Mono nuget and `dotnet nuget push` pick IPv6 and die with socket errors, while curl `-4` works:
+4. Copy the API key (a GUID) to the clipboard and push over IPv4 with curl. The key is trimmed and shape-checked first, because Chocolatey answers a malformed key with a bare 400 rather than 403. push.chocolatey.org sits behind Cloudflare and the IPv6 path from the Mac hangs, so Mono nuget and `dotnet nuget push` both fail:
 
    ```bash
+   K="$(pbpaste | tr -d '[:space:]"')"
+   [[ "$K" =~ ^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$ ]] || { echo "clipboard is not a GUID"; exit 1; }
    for p in dist/*.nupkg; do
-     curl -4 -sS -o /dev/null -w "$p HTTP %{http_code}\n" -X PUT \
-       -H "X-NuGet-ApiKey: $(pbpaste)" \
-       -F "package=@$p;type=application/octet-stream" \
+     curl -4 --http1.1 -sS -o /dev/null -w "$p %{http_code}\n" -X PUT \
+       -H "X-NuGet-ApiKey: $K" -F "package=@$p;type=application/octet-stream" \
        https://push.chocolatey.org/api/v2/package/
    done
+   unset K; pbcopy < /dev/null
    ```
-   HTTP 201 means accepted, 403 means bad key, 409 means the version already exists.
+   201 accepted. 400 malformed key or non-normalized version. 403 wrong key or version already in moderation. 409 version exists or basic validation failed.
 5. Watch the package page; respond on the review-comments box within 15 days if the verifier flags anything.
 
 ## Hard rules (learned the hard way)

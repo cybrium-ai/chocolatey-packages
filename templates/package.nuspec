@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>__ID__</id>
+    <version>__VERSION__</version>
+    <packageSourceUrl>https://github.com/cybrium-ai/chocolatey-packages/tree/main/__ID__</packageSourceUrl>
+    <owners>Cybrium Inc</owners>
+    <title>__TITLE__</title>
+    <authors>Cybrium Inc</authors>
+    <projectUrl>https://github.com/cybrium-ai/__ID__</projectUrl>
+    <iconUrl>https://cybriumstorage.blob.core.windows.net/whitepapers/deck/logo_only.svg</iconUrl>
+    <licenseUrl>https://github.com/cybrium-ai/__ID__/blob/main/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <docsUrl>https://docs.cybrium.ai/__ID__/install</docsUrl>
+    <bugTrackerUrl>https://github.com/cybrium-ai/__ID__/issues</bugTrackerUrl>
+    <tags>__ID__ cybrium security cli rust cross-platform admin</tags>
+    <summary>__SUMMARY__</summary>
+    <description>__DESCRIPTION__
+
+The Windows binary is Authenticode-signed by Cybrium Inc via Azure Trusted Signing. The install script downloads the release binary from GitHub, verifies its SHA-256 checksum, and refuses to install if the Authenticode signature is not valid. Verify after install with:
+
+    Get-AuthenticodeSignature (Get-Command __ID__).Source
+</description>
+    <releaseNotes>https://github.com/cybrium-ai/__ID__/releases/tag/v__VERSION__</releaseNotes>
+  </metadata>
+  <files>
+    <file src="tools/**" target="tools" />
+  </files>
+</package>
